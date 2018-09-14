@@ -5,8 +5,8 @@
 ## architecture of Haiku.
 
 # The name of the binary.
-NAME = roller
-TARGET_DIR = roller
+NAME = Roller
+TARGET_DIR = Binary
 # The type of binary, must be one of:
 #	APP:	Application
 #	SHARED:	Shared library or add-on
