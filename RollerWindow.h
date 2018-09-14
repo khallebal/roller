@@ -1,6 +1,10 @@
 /**************************************************************************
- * Copyright 2017 Khaled Berraoui <khallebal@gmail.com>
- * All rights reserved. Distributed under the terms of the MIT license.
+ * Copyright 2017 All rights reserved. 									  *	
+ * Distributed under the terms of the MIT license.						  *
+ *																		  *
+ * Author:																  *	
+ *		Khaled Berraoui <khallebal@gmail.com>							  *
+ *																		  *
  **************************************************************************/
 
 #ifndef ROLLERWINDOW_H
@@ -9,6 +13,7 @@
 #include <Window.h>
 
 class BBox;
+class BBitmap;
 class BView;
 class BButton;
 class BCheckBox;
@@ -17,48 +22,35 @@ class BMenu;
 class BMenuField;
 class BTextControl;
 
-extern "C" _EXPORT BView *instantiate_deskbar_item();
 
 class RollerWindow : public BWindow
 {
 public:
 									RollerWindow();
-
 				void				MessageReceived(BMessage *msg);
 
-				//void				CreateTimerMenu();
-				//void				addDirectory();
-				//uint32			selectTimer();
-				//uint32			viewMode();
-	
+				void				AddToDeskbar();
+				void				RemoveFromDeskbar();
+
 private:
 
 				BBox 				*box;
 				BView				*topview;
+				BButton 			*fApplyButton;
+				BButton 			*fRevertButton;				
 				BButton 			*fAboutButton;
 				BButton 			*fImagesButton;
-				BCheckBox 			*fDeskbarRep;
-				BCheckBox			*fRandomButton;
+				BCheckBox 			*fDeskbarControl;
+				BCheckBox			*fRandomControl;
+				BCheckBox			*fEraseTextControl;
 				BFilePanel			*fFilePanel;
+				BMenu				*fWorkSpacesMenu;
 				BMenu				*fViewModeMenu;
 				BMenu				*fTimerMenu;
 				BMenuField 			*fViewModeMenuField;
 				BMenuField			*fTimerMenuField;
-				BTextControl		*fLocation;
-
-};
-
-class RollerView : public BView
-{
-public:
-									RollerView();
-									~RollerView();
-									
-									RollerView(BMessage *message);
-
-		static		RollerView		*Instantiate(BMessage *message);
-		virtual		status_t 		Archive(BMessage *message, bool deep = true) const;
-					void			AttachedToWindow();
+				BMenuField			*fWorkSpacesMenuField;
+				BTextControl		*fPathText;
 
 };
 

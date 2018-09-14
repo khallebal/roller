@@ -1,6 +1,10 @@
 /**************************************************************************
- * Copyright 2017 Khaled Berraoui <khallebal@gmail.com>
- * All rights reserved. Distributed under the terms of the MIT license.
+ * Copyright 2017 All rights reserved. 									  *	
+ * Distributed under the terms of the MIT license.						  *
+ *																		  *
+ * Author:																  *	
+ *		Khaled Berraoui <khallebal@gmail.com>							  *
+ *																		  *
  **************************************************************************/
 
 #include "App.h"
@@ -13,6 +17,13 @@ App::App(void)
 	RollerWindow *win = new RollerWindow();
 	win->Show();
 }
+
+bool App::QuitRequested()
+{
+	Quit();
+	return true;
+}
+
 
 int main(void)
 {
