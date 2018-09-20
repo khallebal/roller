@@ -8,7 +8,7 @@
  **************************************************************************/
 
 #include "App.h"
-#include "RollerWindow.h"
+#include "SettingsWindow.h"
 #include "Deskbar.h"
 
 #include <Alert.h>
@@ -34,7 +34,7 @@
 
 
 #undef B_TRANSLATION_CONTEXT
-#define B_TRANSLATION_CONTEXT "RollerWindow"
+#define B_TRANSLATION_CONTEXT "SettingsWindow"
 
 const char* M_Roller_Signature = "application/x-vnd.kb-roller";
 
@@ -45,7 +45,8 @@ static const uint32 M_CurrentWorkspace = 'crwk';
 static const uint32 M_SelectTimer  ='stmr';
 static const uint32 M_EraseText = 'etxt';
 static const uint32 M_RandomMode  ='rdmd';
-static const uint32 M_AddReplicant  ='rrep';
+static const uint32 M_AddReplicant  ='arep';
+static const uint32 M_RemoveReplicant  ='rrep';
 static const uint32 M_ScaleMode = 'scmd';
 static const uint32 M_ImagesPath = 'ipth';
 static const uint32 M_CenterMode = 'ctmd';
@@ -54,7 +55,7 @@ static const uint32 M_Apply = 'aply';
 static const uint32 M_Revert = 'rvrt';
 
 
-RollerWindow::RollerWindow(void)
+SettingsWindow::SettingsWindow(void)
 	:	BWindow(BRect(100,100, 580, 460), "Roller", B_TITLED_WINDOW,
 	B_ASYNCHRONOUS_CONTROLS | B_NOT_ZOOMABLE | B_NOT_RESIZABLE)
 	
@@ -172,24 +173,33 @@ const int32 kOptions = sizeof(kSelections) / sizeof(timerOptions);
 }	
 
 
-void RollerWindow::MessageReceived(BMessage *msg) {
+void SettingsWindow::MessageReceived(BMessage *msg) {
 	switch (msg->what) {
 		case M_AddReplicant: {
 			BDeskbar deskbar;
-			if (deskbar.HasItem("RollerDeskbarView"))
-				deskbar.RemoveItem("RollerDeskbarView");
-			else {
-				entry_ref appref;
-				status_t status;
+			entry_ref appref;
+			status_t status;
+
+			if (!deskbar.HasItem(kRollerDeskbarItem)) {
 				status = be_roster->FindApp(M_Roller_Signature, &appref),
 				deskbar.AddItem(&appref);
 
-			if(status != B_OK)
-				fprintf(stderr, B_TRANSLATE(
-				"Adding Roller to Deskbar failed: %s\n"),
-				strerror(status));
+			} else if(status != B_OK) {
+					fprintf(stderr, B_TRANSLATE(
+					"Adding Roller to Deskbar failed: %s\n"),
+					strerror(status));
 			}
 			
+			break;
+		}
+		case M_RemoveReplicant: {
+			BDeskbar deskbar;
+
+			if (deskbar.HasItem(kRollerDeskbarItem)) {
+				if (fDeskbarControl->Value() == false) {
+					deskbar.RemoveItem(kRollerDeskbarItem);
+				}
+			}
 			break;
 		}
 		case M_SelectTimer: {
@@ -232,3 +242,8 @@ void RollerWindow::MessageReceived(BMessage *msg) {
 	}
 }
 
+bool SettingsWindow::QuitRequested()
+{
+	be_app->PostMessage(B_QUIT_REQUESTED);
+	return true;
+}

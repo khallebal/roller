@@ -23,14 +23,14 @@ class BMenuField;
 class BTextControl;
 
 
-class RollerWindow : public BWindow
+class SettingsWindow : public BWindow
 {
 public:
-									RollerWindow();
+									SettingsWindow();
 				void				MessageReceived(BMessage *msg);
+	virtual		bool				QuitRequested();
 
 				void				AddToDeskbar();
-				void				RemoveFromDeskbar();
 
 private:
 

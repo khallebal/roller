@@ -8,22 +8,35 @@
  **************************************************************************/
 
 #include "App.h"
-#include "RollerWindow.h"
+#include "SettingsWindow.h"
 
+#include <Deskbar.h>
+#include <Entry.h>
+#include <Roster.h>
+#include <Window.h>
+
+const char *kRollerDeskbarItem = "RollerDeskbarView";
 
 App::App(void)
 	:	BApplication("application/x-vnd.kb-roller")
 {
-	RollerWindow *win = new RollerWindow();
-	win->Show();
 }
 
-bool App::QuitRequested()
+void App::ReadyToRun()
 {
-	Quit();
-	return true;
-}
+	BDeskbar deskbar;
+	entry_ref appref;
 
+	if (!deskbar.HasItem(kRollerDeskbarItem)) {
+		be_roster->FindApp(M_Roller_Signature, &appref),
+		deskbar.AddItem(&appref);
+		return;
+	}
+
+	SettingsWindow *win = new SettingsWindow();
+	win->Show();
+
+}
 
 int main(void)
 {

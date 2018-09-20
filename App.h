@@ -12,14 +12,14 @@
 
 #include <Application.h>
 
-extern const char* M_Roller_Signature;
+extern const char *M_Roller_Signature;
+extern const char *kRollerDeskbarItem;
 
 class App : public BApplication
 {
 public:
-						App(void);
-						
-		virtual bool 	QuitRequested();
+							App(void);
+		virtual		void	ReadyToRun();
 };
 
 #endif

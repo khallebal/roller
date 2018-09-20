@@ -9,7 +9,7 @@
 
 #include "App.h"
 #include "Deskbar.h"
-#include "RollerWindow.h"
+#include "SettingsWindow.h"
 
 #include <AboutWindow.h>
 #include <AppFileInfo.h>
@@ -32,7 +32,7 @@ const uint32 M_Resume = 'rsme';
 const uint32 M_Next = 'next';
 const uint32 M_Previous = 'prvs';
 const uint32 M_Settings = 'sttg';
-const uint32 M_Quit = 'quit';
+//const uint32 M_Quit = 'quit';
 
 
 BView *instantiate_deskbar_item()
@@ -41,7 +41,7 @@ BView *instantiate_deskbar_item()
 }
 
 Deskbar::Deskbar()
-	:	BView(BRect(0, 0, 15, 15), "RollerDeskbarView", 
+	:	BView(BRect(0, 0, 15, 15), kRollerDeskbarItem,
 		B_FOLLOW_ALL, B_WILL_DRAW)
 {
 	Init();
@@ -55,6 +55,7 @@ Deskbar::Deskbar(BMessage *message)
 
 Deskbar::~Deskbar()
 {
+
 	delete fIcon;
 }
 
@@ -71,7 +72,7 @@ void Deskbar::Init()
 
 Deskbar *Deskbar::Instantiate(BMessage *message)
 {
-	if (validate_instantiation(message, "RollerDeskbarView"))
+	if (validate_instantiation(message, kRollerDeskbarItem))
 	return new Deskbar(message);
 
 	return NULL;
@@ -83,7 +84,7 @@ status_t Deskbar::Archive(BMessage *message, bool deep) const
 {
 	BView::Archive(message, deep);
 	message->AddString("add_on",M_Roller_Signature);
-	message->AddString("class","RollerDeskbarView");
+	message->AddString("class",kRollerDeskbarItem);
 
 	return B_OK;
 }
@@ -134,15 +135,17 @@ void Deskbar::MessageReceived(BMessage *message)
 			window->Show();
 			break;
 		}
-		case M_Quit: {		
+		case B_QUIT_REQUESTED: {
 			BDeskbar deskbar;
+			if (deskbar.HasItem(kRollerDeskbarItem)) {
+				deskbar.RemoveItem(kRollerDeskbarItem);
+			} else
 				be_app->PostMessage(B_QUIT_REQUESTED);
-				deskbar.RemoveItem("RollerDeskbarView");
-				
+
 			break;
 		}
 		case M_Settings: {
-			be_roster->Launch(M_Roller_Signature);
+				be_roster->Launch(M_Roller_Signature);
 			break;
 		}
 		default: {
@@ -205,17 +208,10 @@ void Deskbar::RightClick(BPoint where)
 		popup->AddSeparatorItem();
 
 		popup->AddItem(new BMenuItem("Quit",
-		new BMessage(M_Quit)));
+		new BMessage(B_QUIT_REQUESTED)));
 		popup->SetAsyncAutoDestruct(true);
 		popup->SetTargetForItems(this);
 		ConvertToScreen(&where);
 		popup->Go(where, true, true, true);
 }
 
-
-	
-bool Deskbar::QuitRequested()
-{
-	be_app->PostMessage(B_QUIT_REQUESTED);
-	return true;
-}
