@@ -1,12 +1,11 @@
 /**************************************************************************
- * Copyright 2017 All rights reserved. 									  													*	
+ * Copyright 2017 All rights reserved. 									  													*
  * Distributed under the terms of the MIT license.						  											*
  *																		  																			*
- * Author:																  																	*	
+ * Author:																  																	*
  *		Khaled Berraoui <khallebal@gmail.com>							  											*
  *																		  																			*
  **************************************************************************/
-
 #include "App.h"
 #include "SettingsWindow.h"
 
@@ -15,10 +14,16 @@
 #include <Roster.h>
 #include <Window.h>
 
-const char *kRollerDeskbarItem = "RollerDeskbarView";
+const char* kRollerSignature = "application/x-vnd.kb-roller";
+const char* kDeskbarSignature = "application/x-vnd.Be-TSKB";
+const char *kRollerDeskbarName = "RollerDeskbarView";
 
 App::App(void)
-	:	BApplication("application/x-vnd.kb-roller")
+	:	BApplication(kRollerSignature)
+{
+}
+
+App::~App()
 {
 }
 
@@ -26,15 +31,17 @@ void App::ReadyToRun()
 {
 	BDeskbar deskbar;
 	entry_ref appref;
+	bool isInDeskbar;
+	isInDeskbar = deskbar.HasItem(kRollerDeskbarName);
 
-	if (!deskbar.HasItem(kRollerDeskbarItem)) {
-		be_roster->FindApp(M_Roller_Signature, &appref),
+	if (!isInDeskbar) {
+		be_roster->FindApp(kRollerSignature, &appref);
 		deskbar.AddItem(&appref);
-		return;
+		Quit();
+		return;		
 	}
-
 	SettingsWindow *win = new SettingsWindow();
-	win->Show();
+		win->Show();
 
 }
 

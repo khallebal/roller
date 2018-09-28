@@ -9,7 +9,7 @@
 
 #include "App.h"
 #include "SettingsWindow.h"
-#include "Deskbar.h"
+#include "DeskbarView.h"
 
 #include <Alert.h>
 #include <Application.h>
@@ -36,23 +36,21 @@
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "SettingsWindow"
 
-const char* M_Roller_Signature = "application/x-vnd.kb-roller";
-
 const char *locationText(NULL);
-static const uint32 M_SelectImages = 'simg';
-static const uint32 M_AllWorkspaces = 'alwk';
-static const uint32 M_CurrentWorkspace = 'crwk';
-static const uint32 M_SelectTimer  ='stmr';
-static const uint32 M_EraseText = 'etxt';
-static const uint32 M_RandomMode  ='rdmd';
-static const uint32 M_AddReplicant  ='arep';
-static const uint32 M_RemoveReplicant  ='rrep';
-static const uint32 M_ScaleMode = 'scmd';
-static const uint32 M_ImagesPath = 'ipth';
-static const uint32 M_CenterMode = 'ctmd';
-static const uint32 M_TileMode = 'tlmd';
-static const uint32 M_Apply = 'aply';
-static const uint32 M_Revert = 'rvrt';
+static const uint32 kAddImages = 'aimg';
+static const uint32 kAllWorkspaces = 'alwk';
+static const uint32 kCurrentWorkspace = 'crwk';
+static const uint32 kSelectTimer  ='stmr';
+static const uint32 kEraseText = 'etxt';
+static const uint32 kRandomMode  ='rdmd';
+static const uint32 kAddReplicant  ='arep';
+static const uint32 kRemoveReplicant  ='rrep';
+static const uint32 kScaleMode = 'scmd';
+static const uint32 kImagesPath = 'ipth';
+static const uint32 kCenterMode = 'ctmd';
+static const uint32 kTileMode = 'tlmd';
+static const uint32 kApply = 'aply';
+static const uint32 kRevert = 'rvrt';
 
 
 SettingsWindow::SettingsWindow(void)
@@ -89,13 +87,13 @@ const int32 kOptions = sizeof(kSelections) / sizeof(timerOptions);
 	AddChild(topview);
 
 	fApplyButton = new BButton(BRect(395, 310, 0, 0),"revert", B_TRANSLATE("Apply"),
-					new BMessage(M_Apply), B_FOLLOW_RIGHT | B_FOLLOW_BOTTOM);
+					new BMessage(kApply), B_FOLLOW_RIGHT | B_FOLLOW_BOTTOM);
 	fApplyButton->ResizeToPreferred();
 	topview->AddChild(fApplyButton);
 		
 
 	fRevertButton = new BButton(BRect(10,310,0,0), "revert", B_TRANSLATE("Revert"),
-			new BMessage(M_Revert), B_FOLLOW_LEFT | B_FOLLOW_BOTTOM);
+			new BMessage(kRevert), B_FOLLOW_LEFT | B_FOLLOW_BOTTOM);
 	fRevertButton->ResizeToPreferred();
 	topview->AddChild(fRevertButton);
 
@@ -108,19 +106,19 @@ const int32 kOptions = sizeof(kSelections) / sizeof(timerOptions);
 
 	fImagesButton = new BButton(BRect(350,30,20,10), "fImagesButton",
 	B_TRANSLATE("Add Images"),
-	new BMessage(M_SelectImages), B_FOLLOW_RIGHT | B_FOLLOW_TOP);
+	new BMessage(kAddImages), B_FOLLOW_RIGHT | B_FOLLOW_TOP);
 	fImagesButton->ResizeToPreferred();
 	box->AddChild(fImagesButton);
 	
 	fPathText = new BTextControl(BRect(10, 35, 300, 10), "fPathText",
-	B_TRANSLATE("Path:"), NULL, new BMessage(M_ImagesPath),
+	B_TRANSLATE("Path:"), NULL, new BMessage(kImagesPath),
 	B_FOLLOW_RIGHT | B_FOLLOW_TOP);
 	fPathText->SetDivider(40);
 	box->AddChild(fPathText);
 
 	fWorkSpacesMenu = new BPopUpMenu(B_TRANSLATE("WorkSpaces"));
-	fWorkSpacesMenu->AddItem(new BMenuItem("All workspaces",new BMessage(M_AllWorkspaces)));
-	fWorkSpacesMenu->AddItem(new BMenuItem("Current workspace",new BMessage(M_CurrentWorkspace)));
+	fWorkSpacesMenu->AddItem(new BMenuItem("All workspaces",new BMessage(kAllWorkspaces)));
+	fWorkSpacesMenu->AddItem(new BMenuItem("Current workspace",new BMessage(kCurrentWorkspace)));
 
 	fWorkSpacesMenu->SetTargetForItems(this);
 	fWorkSpacesMenuField = new BMenuField(BRect(10,100,300,10), "fWorkSpacesMenuField",
@@ -129,9 +127,9 @@ const int32 kOptions = sizeof(kSelections) / sizeof(timerOptions);
 
 	
 	fViewModeMenu = new BPopUpMenu(B_TRANSLATE("Mode"));
-	fViewModeMenu->AddItem(new BMenuItem("Scale",new BMessage(M_ScaleMode)));
-	fViewModeMenu->AddItem(new BMenuItem("Center",new BMessage(M_CenterMode)));
-	fViewModeMenu->AddItem(new BMenuItem("Tile",new BMessage(M_TileMode)));
+	fViewModeMenu->AddItem(new BMenuItem("Scale",new BMessage(kScaleMode)));
+	fViewModeMenu->AddItem(new BMenuItem("Center",new BMessage(kCenterMode)));
+	fViewModeMenu->AddItem(new BMenuItem("Tile",new BMessage(kTileMode)));
 	
 	fViewModeMenu->SetTargetForItems(this);
 	fViewModeMenuField = new BMenuField(BRect(10,150,300,10), "fViewModeMenuField",
@@ -140,7 +138,7 @@ const int32 kOptions = sizeof(kSelections) / sizeof(timerOptions);
 	
 	fTimerMenu = new BPopUpMenu(B_TRANSLATE("Timer"));
 	for (int32 i = 0; i < kOptions; i++) {
-		BMessage *choiceMessage = new BMessage(M_SelectTimer);
+		BMessage *choiceMessage = new BMessage(kSelectTimer);
 		choiceMessage->AddInt32("seconds", kSelections[i].seconds);
 		fTimerMenu->AddItem(new BMenuItem(kSelections[i].name,
 			choiceMessage));
@@ -152,61 +150,46 @@ const int32 kOptions = sizeof(kSelections) / sizeof(timerOptions);
 
 
 	fEraseTextControl = new BCheckBox(BRect(350,100,10,10), "fEraseTextControl",
-	B_TRANSLATE("Erase Text"), new BMessage(M_EraseText),
+	B_TRANSLATE("Erase Text"), new BMessage(kEraseText),
 	B_FOLLOW_RIGHT | B_FOLLOW_TOP);
 	fEraseTextControl->ResizeToPreferred();
 	box->AddChild(fEraseTextControl);
 
 	fRandomControl = new BCheckBox(BRect(350,150,10,10), "fRandomControl",
-	B_TRANSLATE("Random"), new BMessage(M_RandomMode),
+	B_TRANSLATE("Random"), new BMessage(kRandomMode),
 	B_FOLLOW_RIGHT | B_FOLLOW_TOP);
 	fRandomControl->ResizeToPreferred();
 	box->AddChild(fRandomControl);
 
 
 	fDeskbarControl = new BCheckBox(BRect(350,200,10,10),"fDeskbarControl",
-	B_TRANSLATE("DeskBar"), new BMessage(M_AddReplicant),
+	B_TRANSLATE("DeskBar"), new BMessage(kAddReplicant),
 	B_FOLLOW_RIGHT | B_FOLLOW_TOP);
 	fDeskbarControl->ResizeToPreferred();
 	box->AddChild(fDeskbarControl);
+	fDeskbarControl->SetValue(B_CONTROL_ON);
 
 }	
 
 
 void SettingsWindow::MessageReceived(BMessage *msg) {
 	switch (msg->what) {
-		case M_AddReplicant: {
+		case kAddReplicant: {
 			BDeskbar deskbar;
-			entry_ref appref;
-			status_t status;
-
-			if (!deskbar.HasItem(kRollerDeskbarItem)) {
-				status = be_roster->FindApp(M_Roller_Signature, &appref),
+			if (deskbar.HasItem(kRollerDeskbarName))
+				deskbar.RemoveItem(kRollerDeskbarName);
+			else {
+				entry_ref appref;
+				be_roster->FindApp(kRollerSignature, &appref);
 				deskbar.AddItem(&appref);
-
-			} else if(status != B_OK) {
-					fprintf(stderr, B_TRANSLATE(
-					"Adding Roller to Deskbar failed: %s\n"),
-					strerror(status));
-			}
-			
-			break;
-		}
-		case M_RemoveReplicant: {
-			BDeskbar deskbar;
-
-			if (deskbar.HasItem(kRollerDeskbarItem)) {
-				if (fDeskbarControl->Value() == false) {
-					deskbar.RemoveItem(kRollerDeskbarItem);
-				}
 			}
 			break;
-		}
-		case M_SelectTimer: {
+		}	
+		case kSelectTimer: {
 			return;
 			break;
 		}
-		case M_SelectImages: {
+		case kAddImages: {
 			BEntry entry(fPathText->Text(), true);
 			entry_ref ref;
 			if (entry.Exists() && entry.IsDirectory())
@@ -221,13 +204,13 @@ void SettingsWindow::MessageReceived(BMessage *msg) {
 			fFilePanel->Window()->SetTitle(B_TRANSLATE(
 			"Roller : " "Select a Folder"));
 			fFilePanel->SetButtonLabel(B_DEFAULT_BUTTON,
-			B_TRANSLATE("Select"));
+			B_TRANSLATE("Add"));
 			} else
 				fFilePanel->SetPanelDirectory(&ref);
 			fFilePanel->Show();
 			break;
 		}
-		case M_ImagesPath: {
+		case kImagesPath: {
 			BEntry entry(fPathText->Text(), true);
 			if (!entry.Exists())
 			return;

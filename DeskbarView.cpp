@@ -1,14 +1,14 @@
 /**************************************************************************
- * Copyright 2017 All rights reserved. 									     												*	
- * Distributed under the terms of the MIT license.						  											*
- *																		 																			*
- * Author:																  																	*	
- *		Khaled Berraoui <khallebal@gmail.com>							  											*
- *																		  																			*
+ * Copyright 2017 All rights reserved. 										*
+ * Distributed under the terms of the MIT license.							*
+ *																			*
+ * Author:																	*
+ *		Khaled Berraoui <khallebal@gmail.com>								*
+ *																			*
  **************************************************************************/
 
 #include "App.h"
-#include "Deskbar.h"
+#include "DeskbarView.h"
 #include "SettingsWindow.h"
 
 #include <AboutWindow.h>
@@ -25,72 +25,84 @@
 #include <Window.h>
 
 #include <stdio.h>
+#include <strings.h>
 
-
-const uint32 M_Pause = 'puse';
-const uint32 M_Resume = 'rsme';
-const uint32 M_Next = 'next';
-const uint32 M_Previous = 'prvs';
-const uint32 M_Settings = 'sttg';
-//const uint32 M_Quit = 'quit';
+const uint32 kPause = 'puse';
+const uint32 kResume = 'rsme';
+const uint32 kNext = 'next';
+const uint32 kPrevious = 'prvs';
+const uint32 kSettingsWin = 'sttg';
 
 
 BView *instantiate_deskbar_item()
 {
-	return new Deskbar();
+	return new DeskbarView();
 }
 
-Deskbar::Deskbar()
-	:	BView(BRect(0, 0, 15, 15), kRollerDeskbarItem,
-		B_FOLLOW_ALL, B_WILL_DRAW)
+DeskbarView::DeskbarView(bool inDeskbar)
+	:	BView(BRect(0, 0, 15, 15), kRollerDeskbarName,
+		B_FOLLOW_ALL, B_WILL_DRAW),
+		fInDeskbar(inDeskbar)
 {
 	Init();
 }
 
-Deskbar::Deskbar(BMessage *message)
-	:	BView(message)
+DeskbarView::DeskbarView(BMessage *message)
+	:	BView(message),
+	fInDeskbar(false)
 {
+		app_info info;
+	if (be_app->GetAppInfo(&info) == B_OK
+		&& !strcasecmp(info.signature, kDeskbarSignature))
+		fInDeskbar = true;
+
 	Init();
 }
 
-Deskbar::~Deskbar()
+DeskbarView::~DeskbarView()
 {
-
 	delete fIcon;
 }
 
-void Deskbar::Init()
+void DeskbarView::Init()
 {
 	entry_ref ref;
-	be_roster->FindApp(M_Roller_Signature, &ref);
-	
+	be_roster->FindApp(kRollerSignature, &ref);
+
 	BFile			file(&ref, B_READ_ONLY);
 	BAppFileInfo	appFileInfo(&file);
 	fIcon = new BBitmap(BRect(0,0,15,15), B_CMAP8);
 	appFileInfo.GetIcon(fIcon, B_MINI_ICON);
 }
 
-Deskbar *Deskbar::Instantiate(BMessage *message)
+void DeskbarView::Quit()
 {
-	if (validate_instantiation(message, kRollerDeskbarItem))
-	return new Deskbar(message);
-
-	return NULL;
-	
+	if (fInDeskbar) {
+		BDeskbar deskbar;
+		deskbar.RemoveItem(kRollerDeskbarName);
+	} else
+		be_app->PostMessage(B_QUIT_REQUESTED);
 }
 
-	
-status_t Deskbar::Archive(BMessage *message, bool deep) const
+DeskbarView *DeskbarView::Instantiate(BMessage *message)
+{
+	if (validate_instantiation(message, kRollerDeskbarName))
+	return new DeskbarView(message);
+
+	return NULL;
+
+}
+
+status_t DeskbarView::Archive(BMessage *message, bool deep) const
 {
 	BView::Archive(message, deep);
-	message->AddString("add_on",M_Roller_Signature);
-	message->AddString("class",kRollerDeskbarItem);
+	message->AddString("add_on",kRollerSignature);
+	message->AddString("class",kRollerDeskbarName);
 
 	return B_OK;
 }
 
-
-void Deskbar::AttachedToWindow()
+void DeskbarView::AttachedToWindow()
 {
 	BView::AttachedToWindow();
 
@@ -98,27 +110,25 @@ void Deskbar::AttachedToWindow()
 
 }
 
-
-void Deskbar::Draw(BRect rect)
+void DeskbarView::Draw(BRect rect)
 {
 	SetDrawingMode( B_OP_ALPHA );
 	DrawBitmap(fIcon, BPoint(0.0, 0.0));
 }
 
-
-void Deskbar::MessageReceived(BMessage *message)
+void DeskbarView::MessageReceived(BMessage *message)
 {
 	switch (message->what) {
 		case B_ABOUT_REQUESTED: {
 			BAboutWindow *window = new BAboutWindow(
-			"roller", M_Roller_Signature);
+			"roller", kRollerSignature);
 
 			const char *header = {
 			"**ROLLER**"
 			};
-			
+
 			const char *contents[] = {
-			"\tA native wallpaper\n" 
+			"\tA native wallpaper\n"
 			"\tchanger app for Haiku.",
 				NULL
 			};
@@ -137,15 +147,12 @@ void Deskbar::MessageReceived(BMessage *message)
 		}
 		case B_QUIT_REQUESTED: {
 			BDeskbar deskbar;
-			if (deskbar.HasItem(kRollerDeskbarItem)) {
-				deskbar.RemoveItem(kRollerDeskbarItem);
-			} else
-				be_app->PostMessage(B_QUIT_REQUESTED);
-
+			deskbar.RemoveItem(kRollerDeskbarName);
+				Quit();
 			break;
 		}
-		case M_Settings: {
-				be_roster->Launch(M_Roller_Signature);
+		case kSettingsWin: {
+				be_roster->Launch(kRollerSignature);
 			break;
 		}
 		default: {
@@ -155,63 +162,58 @@ void Deskbar::MessageReceived(BMessage *message)
 	}
 }
 
-
-void Deskbar::MouseDown(BPoint where)
+void DeskbarView::MouseDown(BPoint where)
 {
 	BPoint location;
 	uint32 buttons;
 
 	GetMouse(&location, &buttons);
-	
 
 	if (buttons & B_PRIMARY_MOUSE_BUTTON) {
 		LeftClick(where);
 	} else
 	if (buttons & B_SECONDARY_MOUSE_BUTTON) {
 		RightClick(where);
-		
+
 	}
 }
 
-
-
-
-void Deskbar::LeftClick(BPoint where)
+void DeskbarView::LeftClick(BPoint where)
 {
 		BPopUpMenu *popup = new BPopUpMenu("popup", false, false);
 		popup->AddItem(new BMenuItem("Pause",
-		new BMessage(M_Pause)));
+		new BMessage(kPause)));
 		popup->AddItem(new BMenuItem("Resume",
-		new BMessage(M_Resume)));
+		new BMessage(kResume)));
 
 		popup->AddSeparatorItem();
 
 		popup->AddItem(new BMenuItem("Previous",
-		new BMessage(M_Previous)));
+		new BMessage(kPrevious)));
 		popup->AddItem(new BMenuItem("Next",
-		new BMessage(M_Next)));
+		new BMessage(kNext)));
 		popup->SetAsyncAutoDestruct(true);
 		popup->SetTargetForItems(this);
 		ConvertToScreen(&where);
 		popup->Go(where, true, true, true);
 }
 
-
-void Deskbar::RightClick(BPoint where)
+void DeskbarView::RightClick(BPoint where)
 {
 		BPopUpMenu *popup = new BPopUpMenu("popup", false, false);
-		popup->AddItem(new BMenuItem("Settings",
-		new BMessage(M_Settings)));
+		popup->AddItem(new BMenuItem("Settings" B_UTF8_ELLIPSIS,
+		new BMessage(kSettingsWin)));
 		popup->AddItem(new BMenuItem("About",
 		new BMessage(B_ABOUT_REQUESTED)));
 
 		popup->AddSeparatorItem();
 
+	if (fInDeskbar) {
 		popup->AddItem(new BMenuItem("Quit",
 		new BMessage(B_QUIT_REQUESTED)));
+	}
 		popup->SetAsyncAutoDestruct(true);
 		popup->SetTargetForItems(this);
 		ConvertToScreen(&where);
 		popup->Go(where, true, true, true);
 }
-

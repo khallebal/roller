@@ -7,8 +7,8 @@
  *																		  																			*
  **************************************************************************/
 
-#ifndef ROLLERWINDOW_H
-#define ROLLERWINDOW_H
+#ifndef SETTINGSWINDOW_H
+#define SETTINGSWINDOW_H
 
 #include <Window.h>
 
@@ -29,8 +29,7 @@ public:
 									SettingsWindow();
 				void				MessageReceived(BMessage *msg);
 	virtual		bool				QuitRequested();
-
-				void				AddToDeskbar();
+				void				_RemoveReplicant();
 
 private:
 
