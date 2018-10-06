@@ -29,7 +29,6 @@ public:
 									SettingsWindow();
 				void				MessageReceived(BMessage *msg);
 	virtual		bool				QuitRequested();
-				void				_RemoveReplicant();
 
 private:
 
@@ -37,7 +36,6 @@ private:
 				BView				*topview;
 				BButton 			*fApplyButton;
 				BButton 			*fRevertButton;				
-				BButton 			*fAboutButton;
 				BButton 			*fImagesButton;
 				BCheckBox 			*fDeskbarControl;
 				BCheckBox			*fRandomControl;
@@ -49,7 +47,7 @@ private:
 				BMenuField 			*fViewModeMenuField;
 				BMenuField			*fTimerMenuField;
 				BMenuField			*fWorkSpacesMenuField;
-				BTextControl		*fPathText;
+				BTextControl		*fLocationText;
 
 };
 

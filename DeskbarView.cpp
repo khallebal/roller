@@ -75,7 +75,7 @@ void DeskbarView::Init()
 	appFileInfo.GetIcon(fIcon, B_MINI_ICON);
 }
 
-void DeskbarView::Quit()
+void DeskbarView::_Quit()
 {
 	if (fInDeskbar) {
 		BDeskbar deskbar;
@@ -124,7 +124,7 @@ void DeskbarView::MessageReceived(BMessage *message)
 			"roller", kRollerSignature);
 
 			const char *header = {
-			"**ROLLER**"
+			"\t   **ROLLER**"
 			};
 
 			const char *contents[] = {
@@ -148,7 +148,6 @@ void DeskbarView::MessageReceived(BMessage *message)
 		case B_QUIT_REQUESTED: {
 			BDeskbar deskbar;
 			deskbar.RemoveItem(kRollerDeskbarName);
-				Quit();
 			break;
 		}
 		case kSettingsWin: {

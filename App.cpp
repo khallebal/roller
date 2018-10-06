@@ -1,10 +1,10 @@
 /**************************************************************************
- * Copyright 2017 All rights reserved. 									  													*
- * Distributed under the terms of the MIT license.						  											*
- *																		  																			*
- * Author:																  																	*
- *		Khaled Berraoui <khallebal@gmail.com>							  											*
- *																		  																			*
+ * Copyright 2017 All rights reserved. 									  *
+ * Distributed under the terms of the MIT license.						  *
+ *																		  *
+ * Author:																  *
+ *		Khaled Berraoui <khallebal@gmail.com>							  *
+ *																		  *
  **************************************************************************/
 #include "App.h"
 #include "SettingsWindow.h"
@@ -38,7 +38,7 @@ void App::ReadyToRun()
 		be_roster->FindApp(kRollerSignature, &appref);
 		deskbar.AddItem(&appref);
 		Quit();
-		return;		
+		return;
 	}
 	SettingsWindow *win = new SettingsWindow();
 		win->Show();

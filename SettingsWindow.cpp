@@ -25,6 +25,7 @@
 #include <Menu.h>
 #include <MenuItem.h>
 #include <MenuField.h>
+#include <Path.h>
 #include <PopUpMenu.h>
 #include <Roster.h>
 #include <TextControl.h>
@@ -36,7 +37,6 @@
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "SettingsWindow"
 
-const char *locationText(NULL);
 static const uint32 kAddImages = 'aimg';
 static const uint32 kAllWorkspaces = 'alwk';
 static const uint32 kCurrentWorkspace = 'crwk';
@@ -44,9 +44,7 @@ static const uint32 kSelectTimer  ='stmr';
 static const uint32 kEraseText = 'etxt';
 static const uint32 kRandomMode  ='rdmd';
 static const uint32 kAddReplicant  ='arep';
-static const uint32 kRemoveReplicant  ='rrep';
 static const uint32 kScaleMode = 'scmd';
-static const uint32 kImagesPath = 'ipth';
 static const uint32 kCenterMode = 'ctmd';
 static const uint32 kTileMode = 'tlmd';
 static const uint32 kApply = 'aply';
@@ -110,11 +108,11 @@ const int32 kOptions = sizeof(kSelections) / sizeof(timerOptions);
 	fImagesButton->ResizeToPreferred();
 	box->AddChild(fImagesButton);
 	
-	fPathText = new BTextControl(BRect(10, 35, 300, 10), "fPathText",
-	B_TRANSLATE("Path:"), NULL, new BMessage(kImagesPath),
+	fLocationText = new BTextControl(BRect(10, 35, 300, 10), "fLocationText",
+	B_TRANSLATE("Path:"), NULL, new BMessage(B_REFS_RECEIVED),
 	B_FOLLOW_RIGHT | B_FOLLOW_TOP);
-	fPathText->SetDivider(40);
-	box->AddChild(fPathText);
+	fLocationText->SetDivider(40);
+	box->AddChild(fLocationText);
 
 	fWorkSpacesMenu = new BPopUpMenu(B_TRANSLATE("WorkSpaces"));
 	fWorkSpacesMenu->AddItem(new BMenuItem("All workspaces",new BMessage(kAllWorkspaces)));
@@ -167,7 +165,6 @@ const int32 kOptions = sizeof(kSelections) / sizeof(timerOptions);
 	B_FOLLOW_RIGHT | B_FOLLOW_TOP);
 	fDeskbarControl->ResizeToPreferred();
 	box->AddChild(fDeskbarControl);
-	fDeskbarControl->SetValue(B_CONTROL_ON);
 
 }	
 
@@ -176,46 +173,44 @@ void SettingsWindow::MessageReceived(BMessage *msg) {
 	switch (msg->what) {
 		case kAddReplicant: {
 			BDeskbar deskbar;
-			if (deskbar.HasItem(kRollerDeskbarName))
-				deskbar.RemoveItem(kRollerDeskbarName);
-			else {
+			entry_ref appref;
+			if (!deskbar.HasItem(kRollerDeskbarName)) {
 				entry_ref appref;
 				be_roster->FindApp(kRollerSignature, &appref);
 				deskbar.AddItem(&appref);
+			} else if (fDeskbarControl->Value() == B_CONTROL_OFF) {
+				deskbar.RemoveItem(kRollerDeskbarName);
 			}
 			break;
-		}	
+		}
 		case kSelectTimer: {
 			return;
 			break;
 		}
 		case kAddImages: {
-			BEntry entry(fPathText->Text(), true);
 			entry_ref ref;
-			if (entry.Exists() && entry.IsDirectory())
-				entry.GetRef(&ref);
 			if (!fFilePanel) {
 				BMessenger msgr(this);
-			fFilePanel = new BFilePanel(B_OPEN_PANEL, &msgr, NULL,
-			B_FILE_NODE | B_DIRECTORY_NODE
-			| B_SYMLINK_NODE, true, NULL, NULL, false, true);
-			fFilePanel->SetTarget(this);
-
+				fFilePanel = new BFilePanel(B_OPEN_PANEL, &msgr, NULL,
+				B_FILE_NODE | B_DIRECTORY_NODE,
+				true, NULL, NULL, false, true);
 			fFilePanel->Window()->SetTitle(B_TRANSLATE(
-			"Roller : " "Select a Folder"));
+				"Roller : " "Select a Folder"));
 			fFilePanel->SetButtonLabel(B_DEFAULT_BUTTON,
-			B_TRANSLATE("Add"));
+				B_TRANSLATE("Add"));
 			} else
 				fFilePanel->SetPanelDirectory(&ref);
-			fFilePanel->Show();
+				fFilePanel->Show();
 			break;
 		}
-		case kImagesPath: {
-			BEntry entry(fPathText->Text(), true);
-			if (!entry.Exists())
-			return;
+		case B_REFS_RECEIVED: {
 			entry_ref ref;
-			entry.GetRef(&ref);
+			if (msg->FindRef("refs", 0, &ref) == B_OK) {
+				BEntry entry(&ref, true);
+				BPath path;
+				entry.GetPath(&path);
+				fLocationText->SetText(path.Path());
+			}
 			break;
 		}
 		default: {
