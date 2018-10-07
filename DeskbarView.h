@@ -24,26 +24,26 @@ extern "C" _EXPORT BView *instantiate_deskbar_item();
 class DeskbarView : public BView
 {
 public:
-									DeskbarView(bool inDeskbar = false);
-									DeskbarView(BMessage *message);
-		virtual						~DeskbarView();
+								DeskbarView();
+								DeskbarView(BMessage *message);
+	virtual						~DeskbarView();
 		
-					void			MessageReceived(BMessage *message);
-		static 		DeskbarView		*Instantiate(BMessage *message);
-		virtual		status_t 		Archive(BMessage *message, bool deep = true) const;
-					void			AttachedToWindow();
-					void			Draw(BRect rect);
-					void			MouseDown(BPoint where);
-					void			_Quit();
+				void			MessageReceived(BMessage *message);
+	static 		DeskbarView		*Instantiate(BMessage *message);
+	virtual		status_t 		Archive(BMessage *message, bool deep = true) const;
+				void			AttachedToWindow();
+				void			Draw(BRect rect);
+				void			MouseDown(BPoint where);
+				void			_Quit();
 
 private:
-					void			Init();
-					void			RightClick(BPoint where);
-					void			LeftClick(BPoint where);
+				void			Init();
+				void			RightClick(BPoint where);
+				void			LeftClick(BPoint where);
 
 private:
-					BBitmap			*fIcon;
-					bool			fInDeskbar;
+				BBitmap			*fIcon;
+				bool			fInDeskbar;
 
 
 };

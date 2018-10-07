@@ -12,7 +12,6 @@
 #include <Deskbar.h>
 #include <Entry.h>
 #include <Roster.h>
-#include <Window.h>
 
 const char* kRollerSignature = "application/x-vnd.kb-roller";
 const char* kDeskbarSignature = "application/x-vnd.Be-TSKB";
@@ -37,6 +36,7 @@ void App::ReadyToRun()
 	if (!isInDeskbar) {
 		be_roster->FindApp(kRollerSignature, &appref);
 		deskbar.AddItem(&appref);
+
 		Quit();
 		return;
 	}

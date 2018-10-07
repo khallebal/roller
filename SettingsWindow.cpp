@@ -165,6 +165,7 @@ const int32 kOptions = sizeof(kSelections) / sizeof(timerOptions);
 	B_FOLLOW_RIGHT | B_FOLLOW_TOP);
 	fDeskbarControl->ResizeToPreferred();
 	box->AddChild(fDeskbarControl);
+	fDeskbarControl->SetValue(isInDeskbar());
 
 }	
 
@@ -178,6 +179,7 @@ void SettingsWindow::MessageReceived(BMessage *msg) {
 				entry_ref appref;
 				be_roster->FindApp(kRollerSignature, &appref);
 				deskbar.AddItem(&appref);
+
 			} else if (fDeskbarControl->Value() == B_CONTROL_OFF) {
 				deskbar.RemoveItem(kRollerDeskbarName);
 			}
@@ -218,6 +220,12 @@ void SettingsWindow::MessageReceived(BMessage *msg) {
 			break;
 		}
 	}
+}
+
+bool SettingsWindow::isInDeskbar()
+{
+	BDeskbar deskbar;
+	return deskbar.HasItem(kRollerDeskbarName);
 }
 
 bool SettingsWindow::QuitRequested()

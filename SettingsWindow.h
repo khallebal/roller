@@ -26,28 +26,28 @@ class BTextControl;
 class SettingsWindow : public BWindow
 {
 public:
-									SettingsWindow();
-				void				MessageReceived(BMessage *msg);
-	virtual		bool				QuitRequested();
-
+								SettingsWindow();
+				void			MessageReceived(BMessage *msg);
+	virtual		bool			QuitRequested();
+				bool			isInDeskbar();
 private:
 
-				BBox 				*box;
-				BView				*topview;
-				BButton 			*fApplyButton;
-				BButton 			*fRevertButton;				
-				BButton 			*fImagesButton;
-				BCheckBox 			*fDeskbarControl;
-				BCheckBox			*fRandomControl;
-				BCheckBox			*fEraseTextControl;
-				BFilePanel			*fFilePanel;
-				BMenu				*fWorkSpacesMenu;
-				BMenu				*fViewModeMenu;
-				BMenu				*fTimerMenu;
-				BMenuField 			*fViewModeMenuField;
-				BMenuField			*fTimerMenuField;
-				BMenuField			*fWorkSpacesMenuField;
-				BTextControl		*fLocationText;
+				BBox 			*box;
+				BView			*topview;
+				BButton 		*fApplyButton;
+				BButton 		*fRevertButton;				
+				BButton 		*fImagesButton;
+				BCheckBox 		*fDeskbarControl;
+				BCheckBox		*fRandomControl;
+				BCheckBox		*fEraseTextControl;
+				BFilePanel		*fFilePanel;
+				BMenu			*fWorkSpacesMenu;
+				BMenu			*fViewModeMenu;
+				BMenu			*fTimerMenu;
+				BMenuField 		*fViewModeMenuField;
+				BMenuField		*fTimerMenuField;
+				BMenuField		*fWorkSpacesMenuField;
+				BTextControl	*fLocationText;
 
 };
 

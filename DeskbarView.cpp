@@ -18,14 +18,9 @@
 #include <Entry.h>
 #include <File.h>
 #include <MenuItem.h>
-#include <Region.h>
 #include <PopUpMenu.h>
 #include <Roster.h>
 #include <View.h>
-#include <Window.h>
-
-#include <stdio.h>
-#include <strings.h>
 
 const uint32 kPause = 'puse';
 const uint32 kResume = 'rsme';
@@ -39,23 +34,16 @@ BView *instantiate_deskbar_item()
 	return new DeskbarView();
 }
 
-DeskbarView::DeskbarView(bool inDeskbar)
+DeskbarView::DeskbarView()
 	:	BView(BRect(0, 0, 15, 15), kRollerDeskbarName,
-		B_FOLLOW_ALL, B_WILL_DRAW),
-		fInDeskbar(inDeskbar)
+		B_FOLLOW_ALL, B_WILL_DRAW)
 {
 	Init();
 }
 
 DeskbarView::DeskbarView(BMessage *message)
-	:	BView(message),
-	fInDeskbar(false)
+	:	BView(message)
 {
-		app_info info;
-	if (be_app->GetAppInfo(&info) == B_OK
-		&& !strcasecmp(info.signature, kDeskbarSignature))
-		fInDeskbar = true;
-
 	Init();
 }
 
@@ -77,11 +65,8 @@ void DeskbarView::Init()
 
 void DeskbarView::_Quit()
 {
-	if (fInDeskbar) {
 		BDeskbar deskbar;
 		deskbar.RemoveItem(kRollerDeskbarName);
-	} else
-		be_app->PostMessage(B_QUIT_REQUESTED);
 }
 
 DeskbarView *DeskbarView::Instantiate(BMessage *message)
@@ -146,12 +131,11 @@ void DeskbarView::MessageReceived(BMessage *message)
 			break;
 		}
 		case B_QUIT_REQUESTED: {
-			BDeskbar deskbar;
-			deskbar.RemoveItem(kRollerDeskbarName);
+			_Quit();
 			break;
 		}
 		case kSettingsWin: {
-				be_roster->Launch(kRollerSignature);
+			be_roster->Launch(kRollerSignature);
 			break;
 		}
 		default: {
@@ -202,7 +186,7 @@ void DeskbarView::RightClick(BPoint where)
 		BPopUpMenu *popup = new BPopUpMenu("popup", false, false);
 		popup->AddItem(new BMenuItem("Settings" B_UTF8_ELLIPSIS,
 		new BMessage(kSettingsWin)));
-		popup->AddItem(new BMenuItem("About",
+		popup->AddItem(new BMenuItem("About" B_UTF8_ELLIPSIS,
 		new BMessage(B_ABOUT_REQUESTED)));
 
 		popup->AddSeparatorItem();
