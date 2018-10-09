@@ -1,11 +1,11 @@
-/**************************************************************************
- * Copyright 2017 All rights reserved. 									  													*	
- * Distributed under the terms of the MIT license.						  											*
- *																		  																			*
- * Author:																  																	*	
- *		Khaled Berraoui <khallebal@gmail.com>							  											*
- *																		  																			*
- **************************************************************************/
+/*
+ * Copyright 2017 All rights reserved.
+ * Distributed under the terms of the MIT license.
+ *
+ * Author:
+ *		Khaled Berraoui <khallebal@gmail.com>
+ *
+ */
 
 #ifndef SETTINGSWINDOW_H
 #define SETTINGSWINDOW_H
@@ -42,9 +42,9 @@ private:
 				BCheckBox		*fEraseTextControl;
 				BFilePanel		*fFilePanel;
 				BMenu			*fWorkSpacesMenu;
-				BMenu			*fViewModeMenu;
+				BMenu			*fModeMenu;
 				BMenu			*fTimerMenu;
-				BMenuField 		*fViewModeMenuField;
+				BMenuField 		*fModeMenuField;
 				BMenuField		*fTimerMenuField;
 				BMenuField		*fWorkSpacesMenuField;
 				BTextControl	*fLocationText;

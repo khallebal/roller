@@ -1,11 +1,11 @@
-/**************************************************************************
- * Copyright 2017 All rights reserved. 									  													*	
- * Distributed under the terms of the MIT license.						  											*
- *																		  																			*
- * Author:																  																	*	
- *		Khaled Berraoui <khallebal@gmail.com>							  											*
- *																		  																			*
- **************************************************************************/
+/*
+ * Copyright 2017 All rights reserved.
+ * Distributed under the terms of the MIT license.
+ *
+ * Author:
+ *		Khaled Berraoui <khallebal@gmail.com>
+ *
+ */
 
 #include "App.h"
 #include "SettingsWindow.h"
@@ -103,7 +103,7 @@ const int32 kOptions = sizeof(kSelections) / sizeof(timerOptions);
 
 
 	fImagesButton = new BButton(BRect(350,30,20,10), "fImagesButton",
-	B_TRANSLATE("Add Images"),
+	B_TRANSLATE("Folder" B_UTF8_ELLIPSIS),
 	new BMessage(kAddImages), B_FOLLOW_RIGHT | B_FOLLOW_TOP);
 	fImagesButton->ResizeToPreferred();
 	box->AddChild(fImagesButton);
@@ -124,15 +124,15 @@ const int32 kOptions = sizeof(kSelections) / sizeof(timerOptions);
 	box->AddChild(fWorkSpacesMenuField);
 
 	
-	fViewModeMenu = new BPopUpMenu(B_TRANSLATE("Mode"));
-	fViewModeMenu->AddItem(new BMenuItem("Scale",new BMessage(kScaleMode)));
-	fViewModeMenu->AddItem(new BMenuItem("Center",new BMessage(kCenterMode)));
-	fViewModeMenu->AddItem(new BMenuItem("Tile",new BMessage(kTileMode)));
+	fModeMenu = new BPopUpMenu(B_TRANSLATE("Mode"));
+	fModeMenu->AddItem(new BMenuItem("Scale",new BMessage(kScaleMode)));
+	fModeMenu->AddItem(new BMenuItem("Center",new BMessage(kCenterMode)));
+	fModeMenu->AddItem(new BMenuItem("Tile",new BMessage(kTileMode)));
 	
-	fViewModeMenu->SetTargetForItems(this);
-	fViewModeMenuField = new BMenuField(BRect(10,150,300,10), "fViewModeMenuField",
-	NULL, fViewModeMenu, B_FOLLOW_LEFT | B_FOLLOW_TOP);
-	box->AddChild(fViewModeMenuField);
+	fModeMenu->SetTargetForItems(this);
+	fModeMenuField = new BMenuField(BRect(10,150,300,10), "fModeMenuField",
+	NULL, fModeMenu, B_FOLLOW_LEFT | B_FOLLOW_TOP);
+	box->AddChild(fModeMenuField);
 	
 	fTimerMenu = new BPopUpMenu(B_TRANSLATE("Timer"));
 	for (int32 i = 0; i < kOptions; i++) {

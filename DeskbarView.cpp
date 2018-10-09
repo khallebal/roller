@@ -1,11 +1,11 @@
-/**************************************************************************
- * Copyright 2017 All rights reserved. 										*
- * Distributed under the terms of the MIT license.							*
- *																			*
- * Author:																	*
- *		Khaled Berraoui <khallebal@gmail.com>								*
- *																			*
- **************************************************************************/
+/*
+ * Copyright 2017 All rights reserved.
+ * Distributed under the terms of the MIT license.
+ *
+ * Author:
+ *		Khaled Berraoui <khallebal@gmail.com>
+ *
+ */
 
 #include "App.h"
 #include "DeskbarView.h"
