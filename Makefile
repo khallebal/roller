@@ -6,7 +6,6 @@
 
 # The name of the binary.
 NAME = Roller
-TARGET_DIR = Binary
 # The type of binary, must be one of:
 #	APP:	Application
 #	SHARED:	Shared library or add-on
@@ -61,12 +60,13 @@ LIBS =  be tracker localestub $(STDCPPLIBS)
 #	to the Makefile. The paths included are not parsed recursively, so
 #	include all of the paths where libraries must be found. Directories where
 #	source files were specified are	automatically included.
-LIBPATHS = 
+LIBPATHS =
 
 #	Additional paths to look for system headers. These use the form
 #	"#include <header>". Directories that contain the files in SRCS are
 #	NOT auto-included here.
-SYSTEM_INCLUDE_PATHS =  /boot/develop/headers/be /boot/develop/headers/cpp /boot/develop/headers/posix /boot/system/develop/headers/private/interface
+SYSTEM_INCLUDE_PATHS = \
+	$(shell findpaths -e B_FIND_PATH_HEADERS_DIRECTORY private/interface)
 
 #	Additional paths paths to look for local headers. These use the form
 #	#include "header". Directories that contain the files in SRCS are

@@ -20,6 +20,7 @@ class BCheckBox;
 class BFilePanel;
 class BMenu;
 class BMenuField;
+class BSeparatorView;
 class BTextControl;
 
 
@@ -27,19 +28,21 @@ class SettingsWindow : public BWindow
 {
 public:
 								SettingsWindow();
+	virtual						~SettingsWindow();
 				void			MessageReceived(BMessage *msg);
 	virtual		bool			QuitRequested();
 				bool			isInDeskbar();
 private:
+				void			_BuildUserInterface();
 
 				BBox 			*box;
-				BView			*topview;
-				BButton 		*fApplyButton;
-				BButton 		*fRevertButton;				
-				BButton 		*fImagesButton;
+				BButton 		*fApply;
+				BButton 		*fRevert;
+				BButton 		*fButton;
+				BCheckBox		*fAutoStart;
 				BCheckBox 		*fDeskbarControl;
-				BCheckBox		*fRandomControl;
-				BCheckBox		*fEraseTextControl;
+				BCheckBox		*fRandom;
+				BCheckBox		*fEraseText;
 				BFilePanel		*fFilePanel;
 				BMenu			*fWorkSpacesMenu;
 				BMenu			*fModeMenu;
@@ -47,6 +50,7 @@ private:
 				BMenuField 		*fModeMenuField;
 				BMenuField		*fTimerMenuField;
 				BMenuField		*fWorkSpacesMenuField;
+				BSeparatorView	*fPrefsView;
 				BTextControl	*fLocationText;
 
 };

@@ -27,6 +27,7 @@ const uint32 kResume = 'rsme';
 const uint32 kNext = 'next';
 const uint32 kPrevious = 'prvs';
 const uint32 kSettingsWin = 'sttg';
+const uint32 kQuit = 'quit';
 
 
 BView *instantiate_deskbar_item()
@@ -61,12 +62,6 @@ void DeskbarView::Init()
 	BAppFileInfo	appFileInfo(&file);
 	fIcon = new BBitmap(BRect(0,0,15,15), B_CMAP8);
 	appFileInfo.GetIcon(fIcon, B_MINI_ICON);
-}
-
-void DeskbarView::_Quit()
-{
-		BDeskbar deskbar;
-		deskbar.RemoveItem(kRollerDeskbarName);
 }
 
 DeskbarView *DeskbarView::Instantiate(BMessage *message)
@@ -130,8 +125,9 @@ void DeskbarView::MessageReceived(BMessage *message)
 			window->Show();
 			break;
 		}
-		case B_QUIT_REQUESTED: {
-			_Quit();
+		case kQuit: {
+			BDeskbar deskbar;
+			deskbar.RemoveItem(kRollerDeskbarName);
 			break;
 		}
 		case kSettingsWin: {
@@ -184,17 +180,15 @@ void DeskbarView::LeftClick(BPoint where)
 void DeskbarView::RightClick(BPoint where)
 {
 		BPopUpMenu *popup = new BPopUpMenu("popup", false, false);
-		popup->AddItem(new BMenuItem("Settings" B_UTF8_ELLIPSIS,
+		popup->AddItem(new BMenuItem("Preferences" B_UTF8_ELLIPSIS,
 		new BMessage(kSettingsWin)));
 		popup->AddItem(new BMenuItem("About" B_UTF8_ELLIPSIS,
 		new BMessage(B_ABOUT_REQUESTED)));
 
 		popup->AddSeparatorItem();
 
-	if (fInDeskbar) {
 		popup->AddItem(new BMenuItem("Quit",
-		new BMessage(B_QUIT_REQUESTED)));
-	}
+		new BMessage(kQuit)));
 		popup->SetAsyncAutoDestruct(true);
 		popup->SetTargetForItems(this);
 		ConvertToScreen(&where);

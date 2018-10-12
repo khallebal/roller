@@ -9,11 +9,7 @@
 
 #include "App.h"
 #include "SettingsWindow.h"
-#include "DeskbarView.h"
 
-#include <Alert.h>
-#include <Application.h>
-#include <Bitmap.h>
 #include <Box.h>
 #include <Button.h>
 #include <Catalog.h>
@@ -21,6 +17,7 @@
 #include <Deskbar.h>
 #include <Entry.h>
 #include <FilePanel.h>
+#include <LayoutBuilder.h>
 #include <Locale.h>
 #include <Menu.h>
 #include <MenuItem.h>
@@ -28,8 +25,8 @@
 #include <Path.h>
 #include <PopUpMenu.h>
 #include <Roster.h>
+#include <SeparatorView.h>
 #include <TextControl.h>
-#include <View.h>
 
 #include <stdio.h>
 
@@ -44,6 +41,7 @@ static const uint32 kSelectTimer  ='stmr';
 static const uint32 kEraseText = 'etxt';
 static const uint32 kRandomMode  ='rdmd';
 static const uint32 kAddReplicant  ='arep';
+static const uint32 kAutoStart = 'astt';
 static const uint32 kScaleMode = 'scmd';
 static const uint32 kCenterMode = 'ctmd';
 static const uint32 kTileMode = 'tlmd';
@@ -52,18 +50,18 @@ static const uint32 kRevert = 'rvrt';
 
 
 SettingsWindow::SettingsWindow(void)
-	:	BWindow(BRect(100,100, 580, 460), "Roller", B_TITLED_WINDOW,
-	B_ASYNCHRONOUS_CONTROLS | B_NOT_ZOOMABLE | B_NOT_RESIZABLE)
-	
+	:	BWindow(BRect(0, 0, 0, 0), "Roller", B_TITLED_WINDOW,
+	B_ASYNCHRONOUS_CONTROLS | B_NOT_ZOOMABLE | B_NOT_RESIZABLE
+		| B_AUTO_UPDATE_SIZE_LIMITS)
+
 {
-	struct timerOptions {
+struct timerOptions {
 	const char *name;
 	time_t	seconds;
 };
 
 
 timerOptions kSelections[] = {
-	{"15 Seonds", 15 },
 	{"30 Seonds", 30 },
 	{"1 Minute", 60 },
 	{"3 Minutes", 3 * 60 },
@@ -75,102 +73,136 @@ timerOptions kSelections[] = {
 	{"4 Hours", 4 * 60 * 60 },
 	{"8 Hours", 8 * 60 * 60 },
 	{"12 Hours", 12 * 60 * 60 },
-	{"24 Hours", 24 * 60 * 60 }
+	{"24 Hours", 24 * 60 * 60 },
+	{"1 Week", 7 * 24 * 60 * 60 }
 };
 const int32 kOptions = sizeof(kSelections) / sizeof(timerOptions);
 
 
-	topview = new BView(Bounds(), "roller", B_FOLLOW_ALL, B_WILL_DRAW);
-	topview->SetViewColor(ui_color(B_PANEL_BACKGROUND_COLOR));
-	AddChild(topview);
+	fPrefsView = new BSeparatorView(B_HORIZONTAL, B_FANCY_BORDER);
+	fPrefsView->SetLabel(B_TRANSLATE("Preferences"));
+	fPrefsView->SetFont(be_bold_font);
 
-	fApplyButton = new BButton(BRect(395, 310, 0, 0),"revert", B_TRANSLATE("Apply"),
-					new BMessage(kApply), B_FOLLOW_RIGHT | B_FOLLOW_BOTTOM);
-	fApplyButton->ResizeToPreferred();
-	topview->AddChild(fApplyButton);
-		
+	fApply = new BButton("revert", B_TRANSLATE("Apply"),
+		new BMessage(kApply));
+	fApply->SetExplicitAlignment(BAlignment(B_ALIGN_RIGHT,
+		B_ALIGN_NO_VERTICAL));
 
-	fRevertButton = new BButton(BRect(10,310,0,0), "revert", B_TRANSLATE("Revert"),
-			new BMessage(kRevert), B_FOLLOW_LEFT | B_FOLLOW_BOTTOM);
-	fRevertButton->ResizeToPreferred();
-	topview->AddChild(fRevertButton);
-
-
-	box = new BBox(BRect(10,10,470,295), "box",
-	B_FOLLOW_LEFT | B_FOLLOW_TOP, B_WILL_DRAW, B_FANCY_BORDER);
-	box->SetLabel(B_TRANSLATE("Settings"));
-	topview->AddChild(box);
+	fRevert = new BButton("revert", B_TRANSLATE("Revert"),
+		new BMessage(kRevert));
+	fRevert->SetExplicitAlignment(BAlignment(B_ALIGN_RIGHT,
+		B_ALIGN_NO_VERTICAL));
 
 
-	fImagesButton = new BButton(BRect(350,30,20,10), "fImagesButton",
-	B_TRANSLATE("Folder" B_UTF8_ELLIPSIS),
-	new BMessage(kAddImages), B_FOLLOW_RIGHT | B_FOLLOW_TOP);
-	fImagesButton->ResizeToPreferred();
-	box->AddChild(fImagesButton);
-	
-	fLocationText = new BTextControl(BRect(10, 35, 300, 10), "fLocationText",
-	B_TRANSLATE("Path:"), NULL, new BMessage(B_REFS_RECEIVED),
-	B_FOLLOW_RIGHT | B_FOLLOW_TOP);
-	fLocationText->SetDivider(40);
-	box->AddChild(fLocationText);
+	fButton = new BButton("fButton",B_TRANSLATE("Images" B_UTF8_ELLIPSIS),
+		new BMessage(kAddImages));
+
+	fLocationText = new BTextControl("fLocationText",
+		B_TRANSLATE("Path:"), NULL,
+		new BMessage(B_REFS_RECEIVED));
 
 	fWorkSpacesMenu = new BPopUpMenu(B_TRANSLATE("WorkSpaces"));
-	fWorkSpacesMenu->AddItem(new BMenuItem("All workspaces",new BMessage(kAllWorkspaces)));
-	fWorkSpacesMenu->AddItem(new BMenuItem("Current workspace",new BMessage(kCurrentWorkspace)));
-
+	fWorkSpacesMenu->AddItem(new BMenuItem("All",
+		new BMessage(kAllWorkspaces)));
+	fWorkSpacesMenu->AddItem(new BMenuItem("Current",
+		new BMessage(kCurrentWorkspace)));
 	fWorkSpacesMenu->SetTargetForItems(this);
-	fWorkSpacesMenuField = new BMenuField(BRect(10,100,300,10), "fWorkSpacesMenuField",
-	NULL, fWorkSpacesMenu, B_FOLLOW_LEFT_RIGHT | B_FOLLOW_TOP);
-	box->AddChild(fWorkSpacesMenuField);
+	fWorkSpacesMenu->SetRadioMode(true);
 
-	
+	fWorkSpacesMenuField = new BMenuField("fWorkSpacesMenuField",
+		B_TRANSLATE("Workspaces:"), fWorkSpacesMenu);
+	fWorkSpacesMenuField->SetAlignment(B_ALIGN_RIGHT);
+
 	fModeMenu = new BPopUpMenu(B_TRANSLATE("Mode"));
-	fModeMenu->AddItem(new BMenuItem("Scale",new BMessage(kScaleMode)));
-	fModeMenu->AddItem(new BMenuItem("Center",new BMessage(kCenterMode)));
-	fModeMenu->AddItem(new BMenuItem("Tile",new BMessage(kTileMode)));
-	
+	fModeMenu->AddItem(new BMenuItem("Scale",
+		new BMessage(kScaleMode)));
+	fModeMenu->AddItem(new BMenuItem("Center",
+		new BMessage(kCenterMode)));
+	fModeMenu->AddItem(new BMenuItem("Tile",
+		new BMessage(kTileMode)));
 	fModeMenu->SetTargetForItems(this);
-	fModeMenuField = new BMenuField(BRect(10,150,300,10), "fModeMenuField",
-	NULL, fModeMenu, B_FOLLOW_LEFT | B_FOLLOW_TOP);
-	box->AddChild(fModeMenuField);
-	
+	fModeMenu->SetRadioMode(true);
+
+	fModeMenuField = new BMenuField("fModeMenuField",
+		B_TRANSLATE("View Mode:"), fModeMenu);
+	fModeMenuField->SetAlignment(B_ALIGN_RIGHT);
+
 	fTimerMenu = new BPopUpMenu(B_TRANSLATE("Timer"));
-	for (int32 i = 0; i < kOptions; i++) {
-		BMessage *choiceMessage = new BMessage(kSelectTimer);
-		choiceMessage->AddInt32("seconds", kSelections[i].seconds);
-		fTimerMenu->AddItem(new BMenuItem(kSelections[i].name,
+		for (int32 i = 0; i < kOptions; i++) {
+			BMessage *choiceMessage = new BMessage(kSelectTimer);
+			choiceMessage->AddInt32("seconds", kSelections[i].seconds);
+	fTimerMenu->AddItem(new BMenuItem(kSelections[i].name,
 			choiceMessage));
 	}
 	fTimerMenu->SetTargetForItems(this);
-	fTimerMenuField = new BMenuField(BRect(10,200,300,10),
-	"Timer", NULL, fTimerMenu, B_FOLLOW_LEFT | B_FOLLOW_TOP);
-	box->AddChild(fTimerMenuField);
+	fTimerMenu->SetRadioMode(true);
+
+	fTimerMenuField = new BMenuField("fTimerMenuField",
+		B_TRANSLATE("Change Every:"), fTimerMenu);
+	fTimerMenuField->SetAlignment(B_ALIGN_RIGHT);
 
 
-	fEraseTextControl = new BCheckBox(BRect(350,100,10,10), "fEraseTextControl",
-	B_TRANSLATE("Erase Text"), new BMessage(kEraseText),
-	B_FOLLOW_RIGHT | B_FOLLOW_TOP);
-	fEraseTextControl->ResizeToPreferred();
-	box->AddChild(fEraseTextControl);
+	fEraseText = new BCheckBox("fEraseText", B_TRANSLATE("Erase Text"),
+		new BMessage(kEraseText));
 
-	fRandomControl = new BCheckBox(BRect(350,150,10,10), "fRandomControl",
-	B_TRANSLATE("Random"), new BMessage(kRandomMode),
-	B_FOLLOW_RIGHT | B_FOLLOW_TOP);
-	fRandomControl->ResizeToPreferred();
-	box->AddChild(fRandomControl);
+	fRandom = new BCheckBox("fRandom",B_TRANSLATE("Random"),
+		new BMessage(kRandomMode));
 
-
-	fDeskbarControl = new BCheckBox(BRect(350,200,10,10),"fDeskbarControl",
-	B_TRANSLATE("DeskBar"), new BMessage(kAddReplicant),
-	B_FOLLOW_RIGHT | B_FOLLOW_TOP);
-	fDeskbarControl->ResizeToPreferred();
-	box->AddChild(fDeskbarControl);
+	fDeskbarControl = new BCheckBox("fDeskbarControl",B_TRANSLATE("DeskBar"),
+		new BMessage(kAddReplicant));
 	fDeskbarControl->SetValue(isInDeskbar());
 
-}	
+	fAutoStart = new BCheckBox("fAutoStart",B_TRANSLATE("Auto Start"),
+		new BMessage(kAutoStart));
 
+	box = new BBox(B_FANCY_BORDER,
+	BLayoutBuilder::Grid<>(B_USE_DEFAULT_SPACING, 15)
+			.Add(BSpaceLayoutItem::CreateGlue(), 1, 3, 4, 0)
+			.Add(fEraseText, 2, 0)
+			.Add(fRandom, 2, 1)
+			.Add(fDeskbarControl, 2, 2)
+			.Add(BSpaceLayoutItem::CreateGlue(), 3, 3, 6, 0)
+			.Add(new BSeparatorView(B_VERTICAL), 8, 0, 1, 3)
+			.AddMenuField(fWorkSpacesMenuField, 10, 0)
+			.AddMenuField(fModeMenuField, 10, 1)
+			.AddMenuField(fTimerMenuField, 10, 2)
+			.Add(BSpaceLayoutItem::CreateGlue(), 12, 3, 2, 0)
+			.SetInsets(0,B_USE_DEFAULT_SPACING)
+			.View());
+
+	BLayoutBuilder::Group<>(this, B_VERTICAL)
+			.SetInsets(B_USE_DEFAULT_SPACING)
+			.AddGroup(B_HORIZONTAL)
+			.Add(fPrefsView)
+			.End()
+			.AddGroup(B_HORIZONTAL)
+			.Add(fLocationText, B_USE_DEFAULT_SPACING)
+			.AddGlue()
+			.Add(fButton)
+			.AddGlue()
+			.End()
+			.AddGroup(B_VERTICAL)
+			.Add(box)
+			.AddGroup(B_HORIZONTAL)
+			.Add(fAutoStart)
+			.AddGlue()
+			.Add(fRevert)
+			.Add(fApply)
+			.SetInsets(B_USE_WINDOW_SPACING, 0)
+			.End();
+
+	CenterOnScreen();
+}
+
+SettingsWindow::~SettingsWindow()
+{
+	if (fFilePanel)
+	delete fFilePanel;
+	fFilePanel = NULL;
+}
 
 void SettingsWindow::MessageReceived(BMessage *msg) {
+	msg->PrintToStream();
 	switch (msg->what) {
 		case kAddReplicant: {
 			BDeskbar deskbar;
@@ -191,18 +223,15 @@ void SettingsWindow::MessageReceived(BMessage *msg) {
 		}
 		case kAddImages: {
 			entry_ref ref;
-			if (!fFilePanel) {
-				BMessenger msgr(this);
-				fFilePanel = new BFilePanel(B_OPEN_PANEL, &msgr, NULL,
-				B_FILE_NODE | B_DIRECTORY_NODE,
-				true, NULL, NULL, false, true);
+			BMessenger msgr(this);
+			fFilePanel = new BFilePanel(B_OPEN_PANEL, &msgr, NULL,
+			B_FILE_NODE | B_DIRECTORY_NODE, true, NULL, NULL, false, true);
 			fFilePanel->Window()->SetTitle(B_TRANSLATE(
 				"Roller : " "Select a Folder"));
 			fFilePanel->SetButtonLabel(B_DEFAULT_BUTTON,
 				B_TRANSLATE("Add"));
-			} else
-				fFilePanel->SetPanelDirectory(&ref);
-				fFilePanel->Show();
+			fFilePanel->SetPanelDirectory(&ref);
+			fFilePanel->Show();
 			break;
 		}
 		case B_REFS_RECEIVED: {

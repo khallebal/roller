@@ -42,7 +42,6 @@ void App::ReadyToRun()
 	}
 	SettingsWindow *win = new SettingsWindow();
 		win->Show();
-
 }
 
 int main(void)

@@ -34,7 +34,6 @@ public:
 				void			AttachedToWindow();
 				void			Draw(BRect rect);
 				void			MouseDown(BPoint where);
-				void			_Quit();
 
 private:
 				void			Init();
