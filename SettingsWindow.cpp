@@ -138,7 +138,7 @@ const int32 kOptions = sizeof(kSelections) / sizeof(timerOptions);
 	fTimerMenu->SetRadioMode(true);
 
 	fTimerMenuField = new BMenuField("fTimerMenuField",
-		B_TRANSLATE("Change Every:"), fTimerMenu);
+		B_TRANSLATE("Duration:"), fTimerMenu);
 	fTimerMenuField->SetAlignment(B_ALIGN_RIGHT);
 
 
@@ -148,7 +148,7 @@ const int32 kOptions = sizeof(kSelections) / sizeof(timerOptions);
 	fRandom = new BCheckBox("fRandom",B_TRANSLATE("Random"),
 		new BMessage(kRandomMode));
 
-	fDeskbarControl = new BCheckBox("fDeskbarControl",B_TRANSLATE("DeskBar"),
+	fDeskbarControl = new BCheckBox("fDeskbarControl",B_TRANSLATE("Live in DeskBar"),
 		new BMessage(kAddReplicant));
 	fDeskbarControl->SetValue(isInDeskbar());
 
@@ -157,17 +157,17 @@ const int32 kOptions = sizeof(kSelections) / sizeof(timerOptions);
 
 	box = new BBox(B_FANCY_BORDER,
 	BLayoutBuilder::Grid<>(B_USE_DEFAULT_SPACING, 15)
-			.Add(BSpaceLayoutItem::CreateGlue(), 1, 3, 4, 0)
+			.Add(BSpaceLayoutItem::CreateGlue(), 1, 0, 2, 0)
 			.Add(fEraseText, 2, 0)
 			.Add(fRandom, 2, 1)
 			.Add(fDeskbarControl, 2, 2)
-			.Add(BSpaceLayoutItem::CreateGlue(), 3, 3, 6, 0)
-			.Add(new BSeparatorView(B_VERTICAL), 8, 0, 1, 3)
+			.Add(BSpaceLayoutItem::CreateGlue(), 3, 0, 3, 0)
+			.Add(new BSeparatorView(B_VERTICAL), 6, 0, 4, 3)
 			.AddMenuField(fWorkSpacesMenuField, 10, 0)
 			.AddMenuField(fModeMenuField, 10, 1)
 			.AddMenuField(fTimerMenuField, 10, 2)
-			.Add(BSpaceLayoutItem::CreateGlue(), 12, 3, 2, 0)
-			.SetInsets(0,B_USE_DEFAULT_SPACING)
+			.Add(BSpaceLayoutItem::CreateGlue(), 12, 0, 1, 0)
+			.SetInsets(0, B_USE_DEFAULT_SPACING)
 			.View());
 
 	BLayoutBuilder::Group<>(this, B_VERTICAL)
@@ -182,6 +182,7 @@ const int32 kOptions = sizeof(kSelections) / sizeof(timerOptions);
 			.AddGlue()
 			.End()
 			.AddGroup(B_VERTICAL)
+			.AddGlue()
 			.Add(box)
 			.AddGroup(B_HORIZONTAL)
 			.Add(fAutoStart)
