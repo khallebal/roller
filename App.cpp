@@ -11,11 +11,10 @@
 
 #include <Deskbar.h>
 #include <Entry.h>
-#include <Roster.h>
 
 const char* kRollerSignature = "application/x-vnd.kb-roller";
 const char* kDeskbarSignature = "application/x-vnd.Be-TSKB";
-const char *kRollerDeskbarName = "RollerDeskbarView";
+const char *kReplicantName = "RollerDeskbarView";
 
 App::App(void)
 	:	BApplication(kRollerSignature)
@@ -29,16 +28,19 @@ App::~App()
 void App::ReadyToRun()
 {
 	BDeskbar deskbar;
-	entry_ref appref;
-	bool isInDeskbar;
-	isInDeskbar = deskbar.HasItem(kRollerDeskbarName);
+	bool inDeskbar;
+	inDeskbar = deskbar.HasItem(kReplicantName);
+	if (!inDeskbar) {
 
-	if (!isInDeskbar) {
-		be_roster->FindApp(kRollerSignature, &appref);
-		deskbar.AddItem(&appref);
+	image_info info;
+	entry_ref ref;
+	if (our_image(info) == B_OK
+		&& get_ref_for_path(info.name, &ref) == B_OK) {
+		deskbar.AddItem(&ref);
 
 		Quit();
 		return;
+		}
 	}
 	SettingsWindow *win = new SettingsWindow();
 		win->Show();

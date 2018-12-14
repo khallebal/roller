@@ -27,31 +27,31 @@ class BTextControl;
 class SettingsWindow : public BWindow
 {
 public:
-								SettingsWindow();
-	virtual						~SettingsWindow();
-				void			MessageReceived(BMessage *msg);
-	virtual		bool			QuitRequested();
-				bool			isInDeskbar();
+						SettingsWindow();
+	virtual				~SettingsWindow();
+			void		MessageReceived(BMessage *msg);
+	virtual	bool		QuitRequested();
+			bool		isInDeskbar();
 private:
-				void			_BuildUserInterface();
+			void		_BuildUserInterface();
 
-				BBox 			*box;
-				BButton 		*fApply;
-				BButton 		*fRevert;
-				BButton 		*fButton;
-				BCheckBox		*fAutoStart;
-				BCheckBox 		*fDeskbarControl;
-				BCheckBox		*fRandom;
-				BCheckBox		*fEraseText;
-				BFilePanel		*fFilePanel;
-				BMenu			*fWorkSpacesMenu;
-				BMenu			*fModeMenu;
-				BMenu			*fTimerMenu;
-				BMenuField 		*fModeMenuField;
-				BMenuField		*fTimerMenuField;
-				BMenuField		*fWorkSpacesMenuField;
-				BSeparatorView	*fPrefsView;
-				BTextControl	*fLocationText;
+			BBox 		*box;
+			BButton 	*fApply;
+			BButton 	*fRevert;
+			BButton 	*fButton;
+			BCheckBox	*fAutoStart;
+			BCheckBox 	*fDeskbarControl;
+			BCheckBox	*fRandom;
+			BCheckBox	*fEraseText;
+			BFilePanel	*fFilePanel;
+			BMenu		*fWorkSpacesMenu;
+			BMenu		*fModeMenu;
+			BMenu		*fTimerMenu;
+			BMenuField 	*fModeMenuField;
+			BMenuField	*fTimerMenuField;
+			BMenuField	*fWorkSpacesMenuField;
+			BSeparatorView	*fPrefsView;
+			BTextControl *fLocationText;
 
 };
 

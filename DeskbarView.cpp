@@ -7,20 +7,22 @@
  *
  */
 
-#include "App.h"
-#include "DeskbarView.h"
-#include "SettingsWindow.h"
-
 #include <AboutWindow.h>
-#include <AppFileInfo.h>
 #include <Bitmap.h>
 #include <Deskbar.h>
 #include <Entry.h>
 #include <File.h>
+#include <IconUtils.h>
 #include <MenuItem.h>
 #include <PopUpMenu.h>
+#include <Resources.h>
 #include <Roster.h>
 #include <View.h>
+
+#include "App.h"
+#include "DeskbarView.h"
+#include "SettingsWindow.h"
+
 
 const uint32 kPause = 'puse';
 const uint32 kResume = 'rsme';
@@ -30,14 +32,20 @@ const uint32 kSettingsWin = 'sttg';
 const uint32 kQuit = 'quit';
 
 
-BView *instantiate_deskbar_item()
+status_t our_image(image_info& image)
 {
-	return new DeskbarView();
+	int32 cookie = 0;
+	while (get_next_image_info(B_CURRENT_TEAM, &cookie, &image) == B_OK) {
+		if ((char*)our_image >= (char*)image.text
+			&& (char*)our_image <= (char*)image.text + image.text_size)
+			return B_OK;
+	}
+
+	return B_ERROR;
 }
 
-DeskbarView::DeskbarView()
-	:	BView(BRect(0, 0, 15, 15), kRollerDeskbarName,
-		B_FOLLOW_ALL, B_WILL_DRAW)
+DeskbarView::DeskbarView(BRect frame, uint32 resizingMode)
+	:	BView(frame, kReplicantName, resizingMode, B_WILL_DRAW)
 {
 	Init();
 }
@@ -50,23 +58,11 @@ DeskbarView::DeskbarView(BMessage *message)
 
 DeskbarView::~DeskbarView()
 {
-	delete fIcon;
-}
-
-void DeskbarView::Init()
-{
-	entry_ref ref;
-	be_roster->FindApp(kRollerSignature, &ref);
-
-	BFile			file(&ref, B_READ_ONLY);
-	BAppFileInfo	appFileInfo(&file);
-	fIcon = new BBitmap(BRect(0,0,15,15), B_CMAP8);
-	appFileInfo.GetIcon(fIcon, B_MINI_ICON);
 }
 
 DeskbarView *DeskbarView::Instantiate(BMessage *message)
 {
-	if (validate_instantiation(message, kRollerDeskbarName))
+	if (validate_instantiation(message, kReplicantName))
 	return new DeskbarView(message);
 
 	return NULL;
@@ -77,23 +73,52 @@ status_t DeskbarView::Archive(BMessage *message, bool deep) const
 {
 	BView::Archive(message, deep);
 	message->AddString("add_on",kRollerSignature);
-	message->AddString("class",kRollerDeskbarName);
+	message->AddString("class",kReplicantName);
 
 	return B_OK;
 }
 
 void DeskbarView::AttachedToWindow()
 {
+	AdoptParentColors();
+
 	BView::AttachedToWindow();
-
-	SetViewColor(Parent()->ViewColor());
-
 }
 
 void DeskbarView::Draw(BRect rect)
 {
-	SetDrawingMode( B_OP_ALPHA );
-	DrawBitmap(fIcon, BPoint(0.0, 0.0));
+	SetDrawingMode(B_OP_ALPHA);
+	DrawBitmap(fIcon);
+	SetDrawingMode(B_OP_COPY);
+}
+
+void DeskbarView::Init()
+{
+	fIcon = NULL;
+
+	image_info info;
+	if (our_image(info) != B_OK)
+		return;
+
+	BFile file(info.name, B_READ_ONLY);
+	if (file.InitCheck() != B_OK)
+		return;
+
+	BResources resources(&file);
+	if (resources.InitCheck() != B_OK)
+		return;
+
+	size_t size;
+	const void *data = resources.LoadResource(B_VECTOR_ICON_TYPE,
+		"Replicant", &size);
+	if (data != NULL) {
+	BBitmap *bitmap = new BBitmap(Bounds(), B_RGBA32);
+	if (bitmap->InitCheck() == B_OK
+		&& BIconUtils::GetVectorIcon((uint8*)data, size, bitmap) == B_OK) {
+		fIcon = bitmap;
+	} else
+		delete bitmap;
+	}
 }
 
 void DeskbarView::MessageReceived(BMessage *message)
@@ -127,7 +152,7 @@ void DeskbarView::MessageReceived(BMessage *message)
 		}
 		case kQuit: {
 			BDeskbar deskbar;
-			deskbar.RemoveItem(kRollerDeskbarName);
+			deskbar.RemoveItem(kReplicantName);
 			break;
 		}
 		case kSettingsWin: {
@@ -141,23 +166,22 @@ void DeskbarView::MessageReceived(BMessage *message)
 	}
 }
 
-void DeskbarView::MouseDown(BPoint where)
+void DeskbarView::MouseDown(BPoint location)
 {
-	BPoint location;
 	uint32 buttons;
 
 	GetMouse(&location, &buttons);
 
 	if (buttons & B_PRIMARY_MOUSE_BUTTON) {
-		LeftClick(where);
+		LeftClick(location);
 	} else
 	if (buttons & B_SECONDARY_MOUSE_BUTTON) {
-		RightClick(where);
+		RightClick(location);
 
 	}
 }
 
-void DeskbarView::LeftClick(BPoint where)
+void DeskbarView::LeftClick(BPoint location)
 {
 		BPopUpMenu *popup = new BPopUpMenu("popup", false, false);
 		popup->AddItem(new BMenuItem("Pause",
@@ -173,11 +197,11 @@ void DeskbarView::LeftClick(BPoint where)
 		new BMessage(kNext)));
 		popup->SetAsyncAutoDestruct(true);
 		popup->SetTargetForItems(this);
-		ConvertToScreen(&where);
-		popup->Go(where, true, true, true);
+		ConvertToScreen(&location);
+		popup->Go(location, true, true, true);
 }
 
-void DeskbarView::RightClick(BPoint where)
+void DeskbarView::RightClick(BPoint location)
 {
 		BPopUpMenu *popup = new BPopUpMenu("popup", false, false);
 		popup->AddItem(new BMenuItem("Preferences" B_UTF8_ELLIPSIS,
@@ -191,6 +215,13 @@ void DeskbarView::RightClick(BPoint where)
 		new BMessage(kQuit)));
 		popup->SetAsyncAutoDestruct(true);
 		popup->SetTargetForItems(this);
-		ConvertToScreen(&where);
-		popup->Go(where, true, true, true);
+		ConvertToScreen(&location);
+		popup->Go(location, true, true, true);
+}
+
+extern "C"
+BView *instantiate_deskbar_item(float maxWidth, float maxHeight)
+{
+	return new DeskbarView(BRect(0, 0, maxHeight - 1, maxHeight - 1),
+		B_FOLLOW_ALL);
 }

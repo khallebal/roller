@@ -203,18 +203,18 @@ SettingsWindow::~SettingsWindow()
 }
 
 void SettingsWindow::MessageReceived(BMessage *msg) {
-	msg->PrintToStream();
+	//msg->PrintToStream();
 	switch (msg->what) {
 		case kAddReplicant: {
 			BDeskbar deskbar;
-			entry_ref appref;
-			if (!deskbar.HasItem(kRollerDeskbarName)) {
-				entry_ref appref;
-				be_roster->FindApp(kRollerSignature, &appref);
-				deskbar.AddItem(&appref);
+			entry_ref ref;
+			if (!deskbar.HasItem(kReplicantName)) {
+				entry_ref ref;
+				be_roster->FindApp(kRollerSignature, &ref);
+				deskbar.AddItem(&ref);
 
 			} else if (fDeskbarControl->Value() == B_CONTROL_OFF) {
-				deskbar.RemoveItem(kRollerDeskbarName);
+				deskbar.RemoveItem(kReplicantName);
 			}
 			break;
 		}
@@ -255,7 +255,7 @@ void SettingsWindow::MessageReceived(BMessage *msg) {
 bool SettingsWindow::isInDeskbar()
 {
 	BDeskbar deskbar;
-	return deskbar.HasItem(kRollerDeskbarName);
+	return deskbar.HasItem(kReplicantName);
 }
 
 bool SettingsWindow::QuitRequested()
