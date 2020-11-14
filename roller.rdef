@@ -2,7 +2,7 @@
 resource app_signature "application/x-vnd.kb-roller";
 
 resource app_version {
-	major  = 1, 
+	major  = 1,
 	middle = 0,
 	minor  = 0,
 

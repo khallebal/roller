@@ -39,7 +39,6 @@ private:
 			BButton 	*fApply;
 			BButton 	*fRevert;
 			BButton 	*fButton;
-			BCheckBox	*fAutoStart;
 			BCheckBox 	*fDeskbarControl;
 			BCheckBox	*fRandom;
 			BCheckBox	*fEraseText;

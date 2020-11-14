@@ -27,7 +27,6 @@
 const uint32 kPause = 'puse';
 const uint32 kResume = 'rsme';
 const uint32 kNext = 'next';
-const uint32 kPrevious = 'prvs';
 const uint32 kSettingsWin = 'sttg';
 const uint32 kQuit = 'quit';
 
@@ -126,7 +125,7 @@ void DeskbarView::MessageReceived(BMessage *message)
 	switch (message->what) {
 		case B_ABOUT_REQUESTED: {
 			BAboutWindow *window = new BAboutWindow(
-			"roller", kRollerSignature);
+			"\t **ROLLER**", kRollerSignature);
 
 			const char *header = {
 			"\t   **ROLLER**"
@@ -191,8 +190,6 @@ void DeskbarView::LeftClick(BPoint location)
 
 		popup->AddSeparatorItem();
 
-		popup->AddItem(new BMenuItem("Previous",
-		new BMessage(kPrevious)));
 		popup->AddItem(new BMenuItem("Next",
 		new BMessage(kNext)));
 		popup->SetAsyncAutoDestruct(true);

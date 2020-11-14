@@ -101,7 +101,7 @@ const int32 kOptions = sizeof(kSelections) / sizeof(timerOptions);
 		B_TRANSLATE("Path:"), NULL,
 		new BMessage(B_REFS_RECEIVED));
 
-	fWorkSpacesMenu = new BPopUpMenu(B_TRANSLATE("WorkSpaces"));
+	fWorkSpacesMenu = new BPopUpMenu(B_TRANSLATE("Choose"));
 	fWorkSpacesMenu->AddItem(new BMenuItem("All",
 		new BMessage(kAllWorkspaces)));
 	fWorkSpacesMenu->AddItem(new BMenuItem("Current",
@@ -113,7 +113,7 @@ const int32 kOptions = sizeof(kSelections) / sizeof(timerOptions);
 		B_TRANSLATE("Workspaces:"), fWorkSpacesMenu);
 	fWorkSpacesMenuField->SetAlignment(B_ALIGN_RIGHT);
 
-	fModeMenu = new BPopUpMenu(B_TRANSLATE("Mode"));
+	fModeMenu = new BPopUpMenu(B_TRANSLATE("Choose"));
 	fModeMenu->AddItem(new BMenuItem("Scale",
 		new BMessage(kScaleMode)));
 	fModeMenu->AddItem(new BMenuItem("Center",
@@ -127,7 +127,7 @@ const int32 kOptions = sizeof(kSelections) / sizeof(timerOptions);
 		B_TRANSLATE("View Mode:"), fModeMenu);
 	fModeMenuField->SetAlignment(B_ALIGN_RIGHT);
 
-	fTimerMenu = new BPopUpMenu(B_TRANSLATE("Timer"));
+	fTimerMenu = new BPopUpMenu(B_TRANSLATE("Choose"));
 		for (int32 i = 0; i < kOptions; i++) {
 			BMessage *choiceMessage = new BMessage(kSelectTimer);
 			choiceMessage->AddInt32("seconds", kSelections[i].seconds);
@@ -151,9 +151,6 @@ const int32 kOptions = sizeof(kSelections) / sizeof(timerOptions);
 	fDeskbarControl = new BCheckBox("fDeskbarControl",B_TRANSLATE("Live in DeskBar"),
 		new BMessage(kAddReplicant));
 	fDeskbarControl->SetValue(isInDeskbar());
-
-	fAutoStart = new BCheckBox("fAutoStart",B_TRANSLATE("Auto Start"),
-		new BMessage(kAutoStart));
 
 	box = new BBox(B_FANCY_BORDER,
 	BLayoutBuilder::Grid<>(B_USE_DEFAULT_SPACING, 15)
@@ -185,9 +182,8 @@ const int32 kOptions = sizeof(kSelections) / sizeof(timerOptions);
 			.AddGlue()
 			.Add(box)
 			.AddGroup(B_HORIZONTAL)
-			.Add(fAutoStart)
-			.AddGlue()
 			.Add(fRevert)
+			.AddGlue()
 			.Add(fApply)
 			.SetInsets(B_USE_WINDOW_SPACING, 0)
 			.End();
